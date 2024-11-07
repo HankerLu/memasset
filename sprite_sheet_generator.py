@@ -39,7 +39,7 @@ def create_sprite_sheet(input_folder, output_path, images_per_row=8):
 def process_all_2frames_folders(root_directory):
     # 查找所有2_frames文件夹
     for dirpath, dirnames, filenames in os.walk(root_directory):
-        if os.path.basename(dirpath) == "2_frames":
+        if os.path.basename(dirpath) == "extracted_frames":
             print(f"处理文件夹: {dirpath}")
             # 创建输出文件夹（如果不存在）
             output_dir = os.path.join(os.path.dirname(dirpath), "sprite_sheets")
