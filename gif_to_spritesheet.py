@@ -2,6 +2,35 @@ from PIL import Image
 import os
 import argparse
 
+def resize_frame(frame, target_width=660, target_height=793):
+    """
+    调整帧的大小，保持比例并填充透明背景
+    """
+    # 计算缩放比例
+    original_width, original_height = frame.size
+    width_ratio = target_width / original_width
+    height_ratio = target_height / original_height
+    scale_ratio = min(width_ratio, height_ratio)
+    
+    # 计算缩放后的尺寸
+    new_width = int(original_width * scale_ratio)
+    new_height = int(original_height * scale_ratio)
+    
+    # 调整帧的大小
+    resized_frame = frame.resize((new_width, new_height), Image.Resampling.LANCZOS)
+    
+    # 创建新的透明背景图像
+    new_frame = Image.new('RGBA', (target_width, target_height), (0, 0, 0, 0))
+    
+    # 计算粘贴位置（居中）
+    paste_x = (target_width - new_width) // 2
+    paste_y = (target_height - new_height) // 2
+    
+    # 将调整后的帧粘贴到新图像上
+    new_frame.paste(resized_frame, (paste_x, paste_y))
+    
+    return new_frame
+
 def gif_to_spritesheet(gif_path, output_folder='sprite_sheets'):
     """
     将GIF文件转换为sprite sheet
@@ -17,18 +46,21 @@ def gif_to_spritesheet(gif_path, output_folder='sprite_sheets'):
     # 打开GIF文件
     gif = Image.open(gif_path)
     
-    # 获取GIF的所有帧
+    # 获取GIF的所有帧并调整大小
     frames = []
     try:
         while True:
-            # 复制当前帧
-            frames.append(gif.copy())
+            # 复制当前帧并调整大小
+            frame = gif.copy()
+            resized_frame = resize_frame(frame)
+            frames.append(resized_frame)
             gif.seek(gif.tell() + 1)
     except EOFError:
         pass
 
-    # 获取单个帧的尺寸
-    frame_width, frame_height = frames[0].size
+    # 设置固定的帧尺寸
+    frame_width = 660
+    frame_height = 793
     frame_count = len(frames)
     
     # 计算sprite sheet的尺寸
